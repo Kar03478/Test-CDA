@@ -1,236 +1,879 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Test Sistemas Distribuidos</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Test · Sistemas Distribuidos</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-body {
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #00e5a0;
+    --red: #ff4d6d;
+    --yellow: #ffd166;
+    --text: #e8e8f0;
+    --text-dim: #7a7a9a;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 100vh;
-}
-.app {
-    background: #1e293b;
-    padding: 25px;
-    border-radius: 15px;
-    width: 95%;
-    max-width: 750px;
-}
-.progress {
-    height: 8px;
-    background: #334155;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-.bar {
-    height: 100%;
-    background: #22c55e;
-    width: 0%;
-}
-.option {
-    background: #334155;
-    margin: 8px 0;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-.option:hover { background:#475569; }
-.selected { background:#3b82f6; }
-.correct { background:#22c55e !important; }
-.incorrect { background:#ef4444 !important; }
+    padding: 16px 12px 40px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(108,99,255,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(255,101,132,0.08) 0%, transparent 50%);
+  }
 
-button {
-    margin-top: 15px;
-    padding: 10px;
-    background: #3b82f6;
+  /* ── HEADER ── */
+  .header {
+    width: 100%;
+    max-width: 700px;
+    padding: 20px 0 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .header-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-align: center;
+  }
+
+  /* ── SCREENS ── */
+  .screen { width: 100%; max-width: 700px; display: none; }
+  .screen.active { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── START SCREEN ── */
+  .start-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .start-icon { font-size: 56px; line-height: 1; }
+  .start-card h2 { font-size: 22px; font-weight: 700; }
+  .start-card p { color: var(--text-dim); font-size: 14px; line-height: 1.6; max-width: 340px; }
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    max-width: 140px;
+  }
+  .stat-box .num {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-box .lbl { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 14px 28px;
+    border-radius: 12px;
     border: none;
-    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.3px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary {
+    background: var(--accent);
     color: white;
-}
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 0 30px rgba(108,99,255,0.35);
+  }
+  .btn-primary:active { transform: scale(0.97); box-shadow: 0 0 15px rgba(108,99,255,0.2); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    width: 100%;
+  }
+  .btn-secondary:active { transform: scale(0.97); }
+
+  /* ── PROGRESS ── */
+  .progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+  .score-badge {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .dots-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .dot.done-correct { background: var(--green); border-color: var(--green); }
+  .dot.done-wrong { background: var(--red); border-color: var(--red); }
+  .dot.current { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .q-number {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .q-text {
+    font-size: clamp(14px, 3.5vw, 17px);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: clamp(13px, 3.2vw, 15px);
+    font-family: var(--sans);
+    color: var(--text);
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.4;
+    user-select: none;
+  }
+  .option:active { transform: scale(0.985); }
+  .option-letter {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .option.selected {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.12);
+  }
+  .option.selected .option-letter {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .option.correct {
+    border-color: var(--green) !important;
+    background: rgba(0,229,160,0.1) !important;
+  }
+  .option.correct .option-letter {
+    background: var(--green) !important;
+    border-color: var(--green) !important;
+    color: #0a0a0f !important;
+  }
+  .option.wrong {
+    border-color: var(--red) !important;
+    background: rgba(255,77,109,0.1) !important;
+  }
+  .option.wrong .option-letter {
+    background: var(--red) !important;
+    border-color: var(--red) !important;
+    color: white !important;
+  }
+  .option.disabled { cursor: default; pointer-events: none; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback.show { display: flex; }
+  .feedback.ok { background: rgba(0,229,160,0.1); color: var(--green); border: 1px solid rgba(0,229,160,0.25); }
+  .feedback.nope { background: rgba(255,77,109,0.1); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
+
+  /* ── NAV ── */
+  .nav-btn {
+    padding: 15px;
+    border-radius: 14px;
+    border: none;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+    width: 100%;
+    box-shadow: 0 0 24px rgba(108,99,255,0.3);
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: 0.2px;
+  }
+  .nav-btn:disabled {
+    background: var(--surface2);
+    color: var(--text-dim);
+    box-shadow: none;
+    cursor: default;
+  }
+  .nav-btn:not(:disabled):active { transform: scale(0.97); }
+
+  /* ── RESULTS ── */
+  .results-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .result-emoji { font-size: 64px; line-height: 1; }
+  .result-score {
+    font-family: var(--mono);
+    font-size: clamp(48px, 14vw, 72px);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .result-fraction {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--text-dim);
+    margin-top: -8px;
+  }
+  .result-message {
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 700;
+    max-width: 300px;
+  }
+  .result-pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .breakdown {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .bk-box {
+    flex: 1;
+    max-width: 130px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .bk-num { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+  .bk-lbl { font-size: 11px; color: var(--text-dim); }
+  .bk-box.correct-box .bk-num { color: var(--green); }
+  .bk-box.wrong-box .bk-num { color: var(--red); }
+  .results-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+  /* ── REVIEW LIST ── */
+  .review-section { display: flex; flex-direction: column; gap: 10px; }
+  .review-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .review-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .review-item.r-correct { border-color: rgba(0,229,160,0.3); }
+  .review-item.r-wrong { border-color: rgba(255,77,109,0.3); }
+  .review-q { font-size: 13px; font-weight: 600; line-height: 1.4; }
+  .review-ans {
+    font-size: 12px;
+    font-family: var(--mono);
+    padding: 6px 10px;
+    border-radius: 7px;
+  }
+  .review-ans.r-correct-ans { background: rgba(0,229,160,0.1); color: var(--green); }
+  .review-ans.r-wrong-ans { background: rgba(255,77,109,0.1); color: var(--red); }
+  .review-ans.r-right-ans { background: rgba(0,229,160,0.08); color: var(--green); font-size: 11px; }
+
+  @media (max-width: 380px) {
+    .stat-row { gap: 8px; }
+    .stat-box { padding: 10px 12px; }
+    .stat-box .num { font-size: 20px; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<div class="app">
-<h2>🧠 Test Completo</h2>
+<div class="header">
+  <div class="header-label">UdL · Ingeniería Informática</div>
+  <h1>Sistemas Distribuidos</h1>
+</div>
 
-<div class="progress"><div class="bar" id="bar"></div></div>
+<!-- ── START ── -->
+<div class="screen active" id="screen-start">
+  <div class="start-card">
+    <div class="start-icon">🧠</div>
+    <h2>Test de Práctica</h2>
+    <p>Cada ronda te pregunta <strong>15 preguntas aleatorias</strong> del banco completo de examen. ¡Entrena hasta dominarlo todo!</p>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="num" id="total-q-count">—</span>
+        <span class="lbl">Preguntas</span>
+      </div>
+      <div class="stat-box">
+        <span class="num">15</span>
+        <span class="lbl">Por ronda</span>
+      </div>
+      <div class="stat-box">
+        <span class="num" id="best-score-display">—</span>
+        <span class="lbl">Mejor</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">¡Empezar ronda!</button>
+  </div>
+</div>
 
-<div id="q"></div>
-<div id="opts"></div>
+<!-- ── QUIZ ── -->
+<div class="screen" id="screen-quiz">
 
-<button onclick="next()">Siguiente</button>
+  <div class="progress-section">
+    <div class="progress-info">
+      <span class="progress-label" id="prog-label">PREGUNTA 1 / 15</span>
+      <span class="score-badge" id="score-badge">✓ 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="dots-row" id="dots-row"></div>
+  </div>
 
-<div id="res"></div>
+  <div class="question-card">
+    <div class="q-number" id="q-number">PREGUNTA 01</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <button class="nav-btn" id="nav-btn" disabled onclick="handleNav()">Selecciona una respuesta</button>
+</div>
+
+<!-- ── RESULTS ── -->
+<div class="screen" id="screen-results">
+  <div class="results-card">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-score" id="result-score">0</div>
+    <div class="result-fraction" id="result-fraction">de 15 correctas</div>
+    <div class="result-message" id="result-message"></div>
+    <div class="result-pct" id="result-pct"></div>
+    <div class="breakdown">
+      <div class="bk-box correct-box"><span class="bk-num" id="bk-correct">0</span><span class="bk-lbl">✓ Correctas</span></div>
+      <div class="bk-box wrong-box"><span class="bk-num" id="bk-wrong">0</span><span class="bk-lbl">✗ Falladas</span></div>
+    </div>
+    <div class="results-actions">
+      <button class="btn btn-primary" onclick="startQuiz()">Nueva ronda</button>
+      <button class="btn btn-secondary" onclick="showReview()">Ver respuestas</button>
+      <button class="btn btn-secondary" onclick="showScreen('screen-start')">Inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REVIEW ── -->
+<div class="screen" id="screen-review">
+  <div class="review-section" id="review-list"></div>
+  <button class="btn btn-secondary" onclick="showScreen('screen-results')" style="margin-top:4px;">← Volver</button>
 </div>
 
 <script>
+// ────────────────────────────────────────────────
+// BANCO COMPLETO DE PREGUNTAS
+// ────────────────────────────────────────────────
+const ALL_QUESTIONS = [
+  // BLOQUE 1
+  {q:"¿Las URL/URIs que tipo de transparencia proporcionan?",
+   a:["Transparencia de acceso","Transparencia de ubicación","Transparencia de concurrencia","Ninguna de las anteriores"],c:1},
+  {q:"La transparencia de acceso debe ocultar:",
+   a:["La representación a bajo nivel de los datos","Los fallos producidos en el sistema distribuido","La localización de los recursos","El acceso concurrente a los recursos"],c:0},
+  {q:"El modelo de Cloud utilizado por Google AppEngine es:",
+   a:["PPV - Pay Per View","IaaS - Infrastructure as a service","SaaS - Software as a Service","PaaS - Platform as a service"],c:3},
+  {q:"¿Cuál de las siguientes topologías proporciona una mejor escalabilidad?",
+   a:["Bus","Árbol binario","Hipercubo","Crossbar"],c:2},
+  {q:"¿Cuál es el diámetro de una topología Toroide con N procesadores?",
+   a:["N/2","N","2(N¹/²-1)","Log₂(N)"],c:2},
+  {q:"¿Cuál de los siguientes sistemas se puede clasificar como SIMD?",
+   a:["Nvidia Tesla","Cray Y-MP","MMX","Todos los anteriores"],c:3},
+  {q:"Respecto a la eficiencia, ¿cuál de las siguientes afirmaciones es cierta?",
+   a:["Si obtenemos eficiencia 0.5 con cuatro procesadores, la app secuencial tarda el doble","No es posible obtener una eficiencia superior a 1","Con 8 procesadores se puede obtener mejor eficiencia que con 2","Todas las anteriores"],c:1},
+  {q:"De acuerdo con la Ley de Gustafson, ¿qué speedup obtendría una app paralela con 10% de código secuencial en 100 procesadores?",
+   a:["9,17","20,5","90,1","100"],c:2},
+  {q:"¿Cuál de los siguientes métodos de agregación de tareas es susceptible de generar un menor ratio de comunicaciones/cómputo?",
+   a:["Por filas","Por columnas","Por bloques","Cíclica"],c:2},
+  {q:"Respecto al patrón Master/Worker, ¿qué ventaja aporta la variante basada en un Pool de trabajos?",
+   a:["Reduce la congestión del Master","Permite un mejor balanceo de la carga","Permite una mejor sincronización","Permite reducir el número de comunicaciones"],c:1},
 
-const preguntas = [
+  // BLOQUE 2
+  {q:"¿Cuál de los siguientes trabajos SGE necesita más recursos (procesadores)?",
+   a:["qsub –pe 8 ./mi_trabajo.sh","qsub –q all.q -l mem=3G -l h_rt=01:30:00 ./mi_trabajo.sh","qsub –q high.q –m abe -l h_rt=00:30:00 ./mi_trabajo.sh","qsub –t1:10 ./mi_trabajo.sh"],c:0},
+  {q:"¿Cuál es el ancho de bisección de un árbol con N procesadores?",
+   a:["1","N¹/²","N/2","Log₂(N)"],c:0},
+  {q:"¿Cuál de las siguientes topologías de interconexión es indirecta?",
+   a:["Hipercubo","Omega","Crossbar","Toroide"],c:1},
+  {q:"La transparencia de ubicación debe ocultar:",
+   a:["La localización de los recursos","El acceso concurrente a los recursos","La representación a bajo nivel de los datos","Los fallos producidos en el sistema distribuido"],c:0},
+  {q:"¿Qué característica a veces no interesa ocultar mediante la transparencia?",
+   a:["Las redes de comunicación","La replicación de nodos","La ubicación de los usuarios","Ninguna de las anteriores"],c:1},
+  {q:"¿Las Mirrors/Proxies que tipo de transparencia soportan?",
+   a:["Transparencia de replicación","Transparencia de ubicación","Transparencia de acceso","Ninguna de las anteriores"],c:0},
+  {q:"¿Cuál de los siguientes mecanismos utiliza Internet para garantizar el no repudio?",
+   a:["Encriptación de la información (protocolo https)","Antivirus","Firma digital","Certificados digitales"],c:2},
+  {q:"¿Cuál de los siguientes paradigmas no permite la ejecución remota de código?",
+   a:["RPC","Espacio de objetos","Sistemas de Mensajes","a y b"],c:3},
+  {q:"Un servicio con carga muy desbalanceada a lo largo del día y sin previsión de crecimiento futuro. ¿Qué propiedad Cloud puede aprovechar?",
+   a:["Elasticidad","Pago-por-consumo","Confiabilidad","Escalabilidad"],c:0},
+  {q:"¿Los sistemas Chord y Pastry qué algoritmo/método implementan de forma distribuida (P2P)?",
+   a:["Búsqueda binaria","Ordenación quicksort","Tabla de Hash","a y c"],c:2},
 
-{q:"¿Las URL/URIs que tipo de transparencia proporcionan?",
-a:["a) Transparencia de acceso.","b) Transparencia de ubicación.","c) Transparencia de concurrencia.","d) Ninguna de las anteriores."],c:1},
+  // BLOQUE 3
+  {q:"¿Cuál de las siguientes características NO es una ventaja de un sistema distribuido?",
+   a:["Abierto y heterogéneo","Seguro y confiable","Escalable","Buena relación coste/prestaciones"],c:1},
+  {q:"Para que un sistema distribuido sea abierto debe:",
+   a:["Soportar la portabilidad de las aplicaciones","Tener interfaces bien definidas","Ser independiente de la heterogeneidad del entorno","Todas las anteriores"],c:3},
+  {q:"¿Cuál de los siguientes sistemas/protocolos no utiliza un middleware?",
+   a:["CORBA","TCP-IP","RMI","SOAP"],c:1},
+  {q:"¿Las Mirrors/Proxies que tipo de transparencia soportan? (variante)",
+   a:["Transparencia de acceso","Transparencia de ubicación","Transparencia de replicación","Ninguna de las anteriores"],c:2},
+  {q:"La transparencia de acceso debe ocultar: (variante)",
+   a:["La localización de los recursos","El acceso concurrente a los recursos","La representación a bajo nivel de los datos","Los fallos producidos en el sistema distribuido"],c:2},
+  {q:"¿Qué característica a veces no interesa ocultar mediante la transparencia? (variante)",
+   a:["La ubicación de los usuarios","Las redes de comunicación","La replicación de nodos","Ninguna de las anteriores"],c:2},
+  {q:"¿Los navegadores web qué técnica de tratamiento de fallos implementan?",
+   a:["Recuperación","Enmascaramiento","Tolerancia a fallos","Redundancia"],c:1},
+  {q:"¿Cuál de los siguientes mecanismos utiliza Internet para garantizar la confidencialidad?",
+   a:["Encriptación de la información (protocolo https)","Certificados digitales","Antivirus","Firma digital"],c:0},
+  {q:"Los sistemas Grid permiten la compartición de recursos bajo la premisa de:",
+   a:["Ausencia de un conocimiento total sobre el sistema","No existencia de relaciones de confianza","Pago por consumo","a y b"],c:3},
+  {q:"El modelo de Cloud utilizado por Amazon EC-2 (Elastic Compute Cloud) es:",
+   a:["IaaS - Infrastructure as a service","PaaS - Platform as a service","SaaS - Software as a Service","PPV - Pay Per View"],c:0},
+  {q:"¿Cuál de los siguientes paradigmas no permite la ejecución remota de código? (variante)",
+   a:["RPC","Espacio de objetos","Sistemas de Mensajes","b y c"],c:3},
+  {q:"¿Cuál de los siguientes sistemas se puede clasificar como MIMD?",
+   a:["Nvidia Tesla","Cray Y-MP","Intel Core 2 Duo T9900","MMX"],c:1},
+  {q:"¿Los clusters más potentes de hoy en día qué tipo de sistemas de cómputo utilizan?",
+   a:["MISD","SIMD","MISD y MIMD","SIMD y MIMD"],c:3},
+  {q:"¿Cuál es el grado máximo de entrada y salida de una topología toroide con M nodos?",
+   a:["2","4","log₂(M)","M/2"],c:1},
+  {q:"¿Cuál es el diámetro para una topología en árbol (binario) con M nodos y N niveles?",
+   a:["3","O(log₂(M))","O(2ᴺ)","O(M·N)"],c:1},
+  {q:"¿Cuál es la principal diferencia entre una topología directa y una topología indirecta?",
+   a:["Que el ratio switches/nodos es 1","Que el ratio switches/nodos es > 1","Que todo switch/conmutador está conectado a un nodo","a y c"],c:3},
+  {q:"¿Qué NO se debe hacer desde el front-end de un cluster HPC (ej: moore.udl.net)?",
+   a:["qsub ./mi_trabajo_paralelo.sh","./mi_trabajo_paralelo.sh","qmon &","qstat –j jobid"],c:1},
+  {q:"¿Cuál de los siguientes trabajos SGE necesita más recursos? (variante)",
+   a:["qsub –pe 8 ./mi_trabajo.sh","qsub –t1:10:2 ./mi_trabajo.sh","qsub –q high.q –m abe -l h_rt=00:30:00 ./mi_trabajo.sh","qsub –q all.q -l mem=3G -l h_rt=01:30:00 ./mi_trabajo.sh"],c:0},
+  {q:"¿Qué afirmación es falsa respecto al paso de mensajes en RoboCode?",
+   a:["Permite la subscripción a un tipo de mensajes específico","Los mensajes se reciben a través de eventos","Soporta comunicación multicast","Se puede pasar cualquier tipo de información en el mensaje"],c:2},
+  {q:"¿Qué tipo de arquitectura tiene Chord?",
+   a:["Centralizada","Distribuida centralizada","Distribuida estructurada","Distribuida no-estructurada"],c:2},
 
-{q:"La transparencia de acceso debe ocultar:",
-a:["a) La representación a bajo nivel de los datos.","b) Los fallos producidos en el sistema distribuido.","c) La localización de los recursos.","d) El acceso concurrente a los recursos."],c:0},
+  // BLOQUE 4
+  {q:"¿Las URLs que tipo de transparencia proporciona?",
+   a:["Transparencia de ubicación","Transparencia de acceso","Transparencia de replicación","Transparencia de concurrencia"],c:0},
+  {q:"Las firmas digitales se utilizan para garantizar:",
+   a:["La confidencialidad","La integridad","La disponibilidad","El no repudio"],c:3},
+  {q:"¿El CRC qué técnica de tratamiento de fallos está implementando?",
+   a:["Detección","Enmascaramiento","Tolerancia a fallos","Redundancia"],c:0},
+  {q:"¿Cuál es el principal obstáculo para la escalabilidad de tamaño?",
+   a:["La latencia de las redes","Los componentes centralizados","El ancho de banda limitado de los switches/routers","La replicación de nodos"],c:1},
+  {q:"Un sistema Chord con un antecesor y 8 sucesores. ¿Cómo máximo cuántos peers se visitarán antes de encontrar un recurso?",
+   a:["3","5","8","9"],c:0},
+  {q:"Respecto al paradigma de paso de mensajes podemos decir:",
+   a:["Soporta comunicaciones asíncronas de forma transparente","Permite realizar la comunicación entre procesos de forma similar a la E/S","Proporciona una abstracción de la comunicación mediante multicast","Permite programar una app distribuida de forma similar a las convencionales"],c:1},
+  {q:"Los ordenadores de sobremesa actuales, ¿de qué tipo son?",
+   a:["SIMD","MISD","MIMD","A y C"],c:2},
+  {q:"De los siguientes tipos de sistemas de cómputo, ¿cuál ofrece la mejor escalabilidad?",
+   a:["Computadores MPP","Clusters","Sistemas UMA","Sistema NUMA"],c:1},
+  {q:"¿Cuál es el objetivo principal de la Computación de Alta Productividad?",
+   a:["Mejorar el tiempo de ejecución de la aplicación","Mejorar el tiempo de respuesta de la aplicación","Mejorar el número de trabajos completados por unidad de tiempo","Ninguna de las anteriores"],c:2},
+  {q:"¿Cuál de los siguientes trabajos SGE necesita más procesadores para su ejecución?",
+   a:["qsub –t1:10:2 ./mi_trabajo.sh","qsub –pe 8 ./mi_trabajo.sh","qsub –q all.q -l mem=3G -l h_rt=01:30:00 ./mi_trabajo.sh","qsub –t1:5 -pe smp 3 ./mi_trabajo.sh"],c:1},
 
-{q:"El modelo de Cloud utilizado por Google AppEngine es:",
-a:["a) PPV","b) IaaS","c) SaaS","d) PaaS"],c:3},
-
-{q:"¿Cuál de las siguientes topologías proporciona una mejor escalabilidad?",
-a:["a) Bus","b) Árbol","c) Hipercubo","d) Crossbar"],c:2},
-
-{q:"¿Cuál es el diámetro de un toroide?",
-a:["a) N/2","b) N","c) 2(√N-1)","d) log2(N)"],c:2},
-
-{q:"SIMD:",
-a:["a) Nvidia Tesla","b) Cray Y-MP","c) MMX","d) Todos"],c:3},
-
-{q:"Eficiencia:",
-a:["a) 0.5 doble tiempo","b) No >1","c) Más procesadores mejor","d) Todas"],c:1},
-
-{q:"Ley de Gustafson:",
-a:["a) 9.17","b) 20.5","c) 90.1","d) 100"],c:2},
-
-{q:"Menor comunicación:",
-a:["a) Filas","b) Columnas","c) Bloques","d) Cíclica"],c:2},
-
-{q:"Master/Worker:",
-a:["a) Menos congestión","b) Mejor balanceo","c) Sync","d) Menos comunicaciones"],c:1},
-
-{q:"Árbol bisección:",
-a:["a) 1","b) √N","c) N/2","d) log2"],c:0},
-
-{q:"Topología indirecta:",
-a:["a) Hipercubo","b) Omega","c) Crossbar","d) Toroide"],c:1},
-
-{q:"Transparencia ubicación:",
-a:["a) Localización","b) Concurrencia","c) Datos","d) Fallos"],c:0},
-
-{q:"No ocultar:",
-a:["a) Redes","b) Replicación","c) Usuarios","d) Ninguna"],c:1},
-
-{q:"Mirrors:",
-a:["a) Replicación","b) Ubicación","c) Acceso","d) Ninguna"],c:0},
-
-{q:"No repudio:",
-a:["a) HTTPS","b) Antivirus","c) Firma digital","d) Certificados"],c:2},
-
-{q:"No ejecución remota:",
-a:["a) RPC","b) Objetos","c) Mensajes","d) a y b"],c:3},
-
-{q:"Cloud variable:",
-a:["a) Elasticidad","b) Pago","c) Confiabilidad","d) Escalabilidad"],c:0},
-
-{q:"Chord:",
-a:["a) Binaria","b) Quicksort","c) Hash","d) a y c"],c:2},
-
-{q:"No ventaja SD:",
-a:["a) Abierto","b) Seguro","c) Escalable","d) Coste"],c:1},
-
-{q:"Sistema abierto:",
-a:["a) Portabilidad","b) Interfaces","c) Independencia","d) Todas"],c:3},
-
-{q:"No middleware:",
-a:["a) CORBA","b) TCP/IP","c) RMI","d) SOAP"],c:1},
-
-{q:"Acceso oculta:",
-a:["a) Localización","b) Concurrencia","c) Datos","d) Fallos"],c:2},
-
-{q:"Navegadores:",
-a:["a) Recuperación","b) Enmascaramiento","c) Tolerancia","d) Redundancia"],c:1},
-
-{q:"Confidencialidad:",
-a:["a) HTTPS","b) Certificados","c) Antivirus","d) Firma"],c:0},
-
-{q:"Grid:",
-a:["a) Desconocimiento","b) Sin confianza","c) Pago","d) a y b"],c:3},
-
-{q:"Amazon EC2:",
-a:["a) IaaS","b) PaaS","c) SaaS","d) PPV"],c:0},
-
-{q:"Heterogeneidad:",
-a:["a) Hardware","b) SO","c) Lenguaje","d) Todas"],c:3},
-
-{q:"RMI:",
-a:["a) Solo cliente","b) rmic obligatorio","c) No objetos","d) Ninguna"],c:3},
-
-{q:"Sistema abierto:",
-a:["a) Código","b) Siempre accesible","c) Interoperable","d) Seguro"],c:2},
-
-{q:"Migración vs recolocación:",
-a:["a) Replicación","b) Tipo","c) Volumen","d) Uso"],c:3},
-
-{q:"Escalabilidad geográfica:",
-a:["a) CDN","b) Horizontal","c) Ancho banda","d) RAID"],c:0},
-
-{q:"Office365:",
-a:["a) IaaS","b) SaaS","c) PaaS","d) Ninguna"],c:1},
-
-{q:"MOM:",
-a:["a) Directa","b) E/S","c) Multicast","d) RPC"],c:1},
-
-{q:"P2P no estructurado:",
-a:["a) DHT","b) No determinista","c) Anillo","d) A y C"],c:1},
-
-{q:"MIMD:",
-a:["a) IBM Blue Gene","b) Tesla","c) Earth Simulator","d) MMX"],c:0},
-
-{q:"NUMA vs UMA:",
-a:["a) Coherencia","b) Memoria local","c) Distancia","d) Sin espacio global"],c:2}
-
+  // BLOQUE 5
+  {q:"Para soportar la heterogeneidad, el sistema distribuido debe ser independiente de:",
+   a:["Hardware","Sistema Operativo","Lenguaje de programación","Todas las anteriores"],c:3},
+  {q:"Respecto a RMI, ¿cuál de las siguientes afirmaciones es cierta?",
+   a:["Solo el cliente puede invocar métodos remotos","Es obligatorio crear los proxies con rmic","No permite objetos como parámetros o retorno","Ninguna de las anteriores"],c:3},
+  {q:"¿Qué implica que un sistema distribuido sea abierto?",
+   a:["Que su código esté disponible para el público","Que pueda ser accesible en todo momento","Que pueda interactuar con servicios de otros sistemas","Que sea seguro"],c:2},
+  {q:"¿Cuál es la principal diferencia entre transparencia de recolocación y transparencia de migración?",
+   a:["Que exista replicación entre los recursos","El tipo de recursos involucrados","El volumen de recursos involucrados","Que los recursos estén siendo utilizados o no"],c:3},
+  {q:"¿Cuál de las siguientes técnicas permite mejorar la escalabilidad geográfica?",
+   a:["Utilizar un CDN","Utilizar un servidor distribuido horizontalmente","Ampliar el ancho de banda de red del SD","Utilizar un sistema RAID"],c:0},
+  {q:"El modelo de Cloud utilizado por Office 365 es:",
+   a:["IaaS - Infrastructure as a service","SaaS - Software as a Service","PaaS - Platform as a service","Ninguna de las anteriores"],c:1},
+  {q:"Respecto al paradigma de sistema de mensajes (MOM) podemos decir:",
+   a:["Se usan los mensajes para comunicar directamente dos procesos","Permite la comunicación entre procesos de forma similar a E/S","Proporciona una abstracción de la comunicación mediante multicast","RPC es un ejemplo de este paradigma"],c:1},
+  {q:"¿Un sistema P2P NO estructurado se caracteriza por?",
+   a:["Implementar una DHT para localizar los recursos","No ser determinista en la búsqueda de recursos","Organizar a los peer en forma de anillo","A y C"],c:1},
+  {q:"¿Cuál de los siguientes sistemas se puede clasificar como MIMD? (variante)",
+   a:["IBM Blue Gene","Nvidia Tesla","Earth Simulator","MMX"],c:0},
+  {q:"¿Cuál es la principal diferencia entre una arquitectura NUMA y una arquitectura UMA?",
+   a:["Que se mantiene la coherencia de la cache mediante hardware","Que cada procesador tiene su propia memoria local no accesible para el resto","La distancia a la que se encuentran las distintas memorias","La no existencia de un espacio global de direcciones"],c:2},
 ];
 
-let i=0,score=0,sel=null;
+// ── STATE ──
+const ROUND_SIZE = 15;
+let round = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let results = [];
+let bestScore = parseInt(localStorage.getItem('best_score') || '0');
 
-function load(){
-let p=preguntas[i];
-q.innerText=(i+1)+". "+p.q;
-opts.innerHTML="";
-p.a.forEach((o,idx)=>{
-opts.innerHTML+=`<div class="option" onclick="pick(this,${idx})">${o}</div>`;
-});
-bar.style.width=(i/preguntas.length*100)+"%";
-sel=null;
+// ── INIT ──
+document.getElementById('total-q-count').textContent = ALL_QUESTIONS.length;
+updateBestDisplay();
+
+function updateBestDisplay() {
+  const el = document.getElementById('best-score-display');
+  el.textContent = bestScore > 0 ? bestScore + '/15' : '—';
 }
 
-function pick(el,idx){
-document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
-el.classList.add("selected");
-sel=idx;
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function next(){
-if(sel==null)return alert("Selecciona una respuesta");
-
-let ops=document.querySelectorAll(".option");
-
-if(sel===preguntas[i].c){
-score++;
-ops[sel].classList.add("correct");
-}else{
-ops[sel].classList.add("incorrect");
-ops[preguntas[i].c].classList.add("correct");
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
-setTimeout(()=>{
-i++;
-if(i<preguntas.length) load();
-else app.innerHTML=`<h2>Resultado</h2><h1>${score}/${preguntas.length}</h1>`;
-},800);
+// ── START ──
+function startQuiz() {
+  round = shuffle(ALL_QUESTIONS).slice(0, ROUND_SIZE);
+  current = 0;
+  score = 0;
+  answered = false;
+  results = [];
+  buildDots();
+  loadQuestion();
+  showScreen('screen-quiz');
 }
 
-load();
+function buildDots() {
+  const row = document.getElementById('dots-row');
+  row.innerHTML = '';
+  for (let i = 0; i < ROUND_SIZE; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'dot-' + i;
+    row.appendChild(d);
+  }
+}
 
+function updateDot(idx, correct) {
+  const d = document.getElementById('dot-' + idx);
+  if (d) {
+    d.classList.remove('current');
+    d.classList.add(correct ? 'done-correct' : 'done-wrong');
+  }
+  const next = document.getElementById('dot-' + (idx + 1));
+  if (next) next.classList.add('current');
+}
+
+// ── LOAD QUESTION ──
+function loadQuestion() {
+  answered = false;
+  const q = round[current];
+  const letters = ['A','B','C','D'];
+
+  document.getElementById('q-number').textContent = `PREGUNTA ${String(current+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('prog-label').textContent = `PREGUNTA ${current+1} / ${ROUND_SIZE}`;
+  document.getElementById('score-badge').textContent = `✓ ${score}`;
+  document.getElementById('prog-fill').style.width = (current / ROUND_SIZE * 100) + '%';
+
+  const feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+
+  // Shuffle answer order keeping track of correct
+  const indices = shuffle([0,1,2,3]);
+  const correctOriginal = q.c;
+  let correctShuffled = 0;
+  indices.forEach((origIdx, shuffIdx) => {
+    if (origIdx === correctOriginal) correctShuffled = shuffIdx;
+  });
+
+  indices.forEach((origIdx, shuffIdx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[shuffIdx]}</span><span>${q.a[origIdx]}</span>`;
+    btn.onclick = () => selectOption(btn, shuffIdx, correctShuffled, q);
+    opts.appendChild(btn);
+  });
+
+  const navBtn = document.getElementById('nav-btn');
+  navBtn.disabled = true;
+  navBtn.textContent = 'Selecciona una respuesta';
+  navBtn.onclick = handleNav;
+}
+
+// ── SELECT ──
+let selectedIdx = -1;
+let correctIdx = -1;
+
+function selectOption(el, idx, correct, q) {
+  if (answered) return;
+  selectedIdx = idx;
+  correctIdx = correct;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const navBtn = document.getElementById('nav-btn');
+  navBtn.disabled = false;
+  navBtn.textContent = current < ROUND_SIZE - 1 ? 'Confirmar respuesta' : 'Ver resultados';
+}
+
+// ── CONFIRM ──
+function handleNav() {
+  if (!answered && selectedIdx === -1) return;
+
+  if (!answered) {
+    answered = true;
+    const opts = document.querySelectorAll('.option');
+    const isCorrect = selectedIdx === correctIdx;
+
+    opts.forEach((o, i) => {
+      o.classList.add('disabled');
+      o.classList.remove('selected');
+      if (i === correctIdx) o.classList.add('correct');
+      else if (i === selectedIdx && !isCorrect) o.classList.add('wrong');
+    });
+
+    if (isCorrect) score++;
+
+    const feedback = document.getElementById('feedback');
+    if (isCorrect) {
+      feedback.className = 'feedback ok show';
+      feedback.textContent = '✓ ¡Correcto!';
+    } else {
+      feedback.className = 'feedback nope show';
+      feedback.textContent = '✗ Incorrecto — la respuesta correcta está marcada en verde.';
+    }
+
+    results.push({ q: round[current], correct: isCorrect, chosen: selectedIdx, right: correctIdx });
+    updateDot(current, isCorrect);
+
+    const navBtn = document.getElementById('nav-btn');
+    if (current < ROUND_SIZE - 1) {
+      navBtn.textContent = 'Siguiente pregunta →';
+    } else {
+      navBtn.textContent = 'Ver resultados 🏁';
+    }
+    selectedIdx = -1;
+    document.getElementById('score-badge').textContent = `✓ ${score}`;
+  } else {
+    current++;
+    answered = false;
+    selectedIdx = -1;
+
+    if (current < ROUND_SIZE) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }
+}
+
+// ── RESULTS ──
+function showResults() {
+  const pct = Math.round(score / ROUND_SIZE * 100);
+  const emojis = ['😬','😕','🤔','😐','🙂','😊','😎','🔥','⚡','🏆'];
+  const ei = Math.floor(pct / 10);
+
+  document.getElementById('result-emoji').textContent = emojis[Math.min(ei, 9)];
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-fraction').textContent = `de ${ROUND_SIZE} correctas`;
+  document.getElementById('result-pct').textContent = pct + '% de acierto';
+  document.getElementById('bk-correct').textContent = score;
+  document.getElementById('bk-wrong').textContent = ROUND_SIZE - score;
+
+  const msgs = {
+    0: '¡Sigue estudiando, lo conseguirás!',
+    1: '¡Sigue estudiando, lo conseguirás!',
+    2: 'Hay margen de mejora 💪',
+    3: 'Hay margen de mejora 💪',
+    4: 'Vas por buen camino 👍',
+    5: 'No está mal, ¡a por más!',
+    6: '¡Buen resultado! 🙌',
+    7: '¡Muy bien! Casi perfecto.',
+    8: '¡Excelente! Dominas el tema 🔥',
+    9: '¡Perfecto! Eres un crack ⚡',
+  };
+  document.getElementById('result-message').textContent = msgs[Math.floor(pct/10)] || '¡Perfecto!';
+
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('best_score', bestScore);
+    updateBestDisplay();
+  }
+
+  document.getElementById('prog-fill').style.width = '100%';
+  showScreen('screen-results');
+}
+
+// ── REVIEW ──
+function showReview() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '<div class="review-title">Revisión de respuestas</div>';
+  const letters = ['A','B','C','D'];
+
+  results.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (r.correct ? 'r-correct' : 'r-wrong');
+
+    const icon = r.correct ? '✓' : '✗';
+    // Find original answer texts from shuffled positions
+    // We stored chosen & right as shuffled indices, need display text
+    const optsCopy = [...r.q.a];
+    const shuffled = shuffle([0,1,2,3]);
+    // Re-build same shuffle: we can't perfectly reconstruct, so show correct answer text
+    const correctText = r.q.a[r.q.c];
+
+    div.innerHTML = `
+      <div class="review-q">${icon} ${r.q.q}</div>
+      <div class="review-ans r-right-ans">Respuesta correcta: ${correctText}</div>
+    `;
+    list.appendChild(div);
+  });
+
+  showScreen('screen-review');
+}
 </script>
-
 </body>
 </html>
