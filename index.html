@@ -4,23 +4,118 @@
 <head>
 <meta charset="UTF-8">
 <title>Test Sistemas Distribuidos</title>
+
 <style>
-body { font-family: Arial; padding: 20px; max-width: 900px; margin: auto; }
-h2 { margin-top: 30px; }
-.correct { color: green; font-weight: bold; }
-.incorrect { color: red; font-weight: bold; }
-button { padding: 10px; font-size: 16px; margin-top: 20px; }
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.app {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.progress {
+    height: 8px;
+    background: #334155;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #22c55e;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.question {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.option {
+    display: block;
+    background: #334155;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 8px 0;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.option:hover {
+    background: #475569;
+}
+
+.selected {
+    background: #3b82f6;
+}
+
+.correct {
+    background: #22c55e !important;
+}
+
+.incorrect {
+    background: #ef4444 !important;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #3b82f6;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+.result {
+    font-size: 22px;
+    margin-top: 20px;
+}
 </style>
+
 </head>
+
 <body>
 
-<h1>Test Sistemas Distribuidos</h1>
+<div class="app">
+<h1>🧠 Test</h1>
 
-<form id="quiz"></form>
+<div class="progress">
+<div class="progress-bar" id="barra"></div>
+</div>
 
-<button onclick="corregir()">Corregir</button>
+<div id="pregunta" class="question"></div>
+<div id="respuestas"></div>
 
-<h2 id="resultado"></h2>
+<button onclick="siguiente()">Siguiente</button>
+
+<div id="resultado" class="result"></div>
+</div>
 
 <script>
 const preguntas = [
@@ -45,59 +140,69 @@ const preguntas = [
 {q:"Cloud carga variable:",a:["Elasticidad","Pago","Confiabilidad","Escalabilidad"],c:0},
 {q:"Chord/Pastry:",a:["Binaria","Quicksort","Hash","a y c"],c:2},
 
-{q:"No ventaja SD:",a:["Abierto","Seguro","Escalable","Coste"],c:1},
-{q:"Sistema abierto:",a:["Portabilidad","Interfaces","Independencia","Todas"],c:3},
-{q:"No middleware:",a:["CORBA","TCP/IP","RMI","SOAP"],c:1},
-{q:"Mirrors:",a:["Acceso","Ubicación","Replicación","Ninguna"],c:2},
-{q:"Acceso oculta:",a:["Localización","Concurrencia","Datos","Fallos"],c:2},
-{q:"No ocultar:",a:["Usuarios","Redes","Replicación","Ninguna"],c:2},
-{q:"Navegadores:",a:["Recuperación","Enmascaramiento","Tolerancia","Redundancia"],c:1},
-{q:"Confidencialidad:",a:["HTTPS","Certificados","Antivirus","Firma"],c:0},
-{q:"Grid:",a:["Desconocimiento","Sin confianza","Pago","a y b"],c:3},
-{q:"Amazon EC2:",a:["IaaS","PaaS","SaaS","PPV"],c:0},
-
-// 👇 BLOQUE QUE ME CONFIRMASTE (CORREGIDO CON LA IMAGEN)
 {q:"Heterogeneidad:",a:["Hardware","SO","Lenguaje","Todas"],c:3},
 {q:"RMI:",a:["Solo cliente","rmic obligatorio","No objetos","Ninguna"],c:3},
 {q:"Sistema abierto:",a:["Código","Siempre accesible","Interoperable","Seguro"],c:2},
 {q:"Migración vs recolocación:",a:["Replicación","Tipo recursos","Volumen","Uso de recursos"],c:3},
 {q:"Escalabilidad geográfica:",a:["CDN","Servidor horizontal","Más ancho banda","RAID"],c:0},
-{q:"Cloud Office365:",a:["IaaS","SaaS","PaaS","Ninguna"],c:1},
-
-{q:"MOM:",a:["Comunicación directa","E/S","Multicast","RPC"],c:1},
-{q:"P2P no estructurado:",a:["DHT","No determinista","Anillo","A y C"],c:1},
-{q:"MIMD:",a:["IBM Blue Gene","Nvidia Tesla","Earth Simulator","MMX"],c:0},
-{q:"NUMA vs UMA:",a:["Coherencia","Memoria local","Distancia","Sin espacio global"],c:2}
+{q:"Cloud Office365:",a:["IaaS","SaaS","PaaS","Ninguna"],c:1}
 ];
 
-const form = document.getElementById("quiz");
+let actual = 0;
+let aciertos = 0;
+let seleccion = null;
 
-preguntas.forEach((p, i) => {
-    let html = `<h3>${i+1}. ${p.q}</h3>`;
-    p.a.forEach((opt, j) => {
-        html += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label><br>`;
-    });
-    form.innerHTML += html;
-});
+function cargarPregunta() {
+    const p = preguntas[actual];
+    document.getElementById("pregunta").innerText = (actual+1)+". "+p.q;
 
-function corregir() {
-    let correctas = 0;
-
-    preguntas.forEach((p, i) => {
-        let sel = document.querySelector(`input[name="q${i}"]:checked`);
-        if (sel) {
-            if (parseInt(sel.value) === p.c) {
-                correctas++;
-                sel.parentElement.classList.add("correct");
-            } else {
-                sel.parentElement.classList.add("incorrect");
-            }
-        }
+    let html = "";
+    p.a.forEach((op, i) => {
+        html += `<div class="option" onclick="seleccionar(this, ${i})">${op}</div>`;
     });
 
-    document.getElementById("resultado").innerText =
-        `Resultado: ${correctas} / ${preguntas.length}`;
+    document.getElementById("respuestas").innerHTML = html;
+    seleccion = null;
+
+    document.getElementById("barra").style.width =
+        ((actual)/preguntas.length)*100 + "%";
 }
+
+function seleccionar(el, i) {
+    document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+    el.classList.add("selected");
+    seleccion = i;
+}
+
+function siguiente() {
+    if (seleccion === null) {
+        alert("Selecciona una respuesta");
+        return;
+    }
+
+    const opciones = document.querySelectorAll(".option");
+
+    if (seleccion === preguntas[actual].c) {
+        aciertos++;
+        opciones[seleccion].classList.add("correct");
+    } else {
+        opciones[seleccion].classList.add("incorrect");
+        opciones[preguntas[actual].c].classList.add("correct");
+    }
+
+    setTimeout(() => {
+        actual++;
+        if (actual < preguntas.length) {
+            cargarPregunta();
+        } else {
+            document.querySelector(".app").innerHTML =
+                `<h1>Resultado</h1>
+                 <p class="result">${aciertos} / ${preguntas.length}</p>`;
+        }
+    }, 800);
+}
+
+cargarPregunta();
 </script>
 
 </body>
