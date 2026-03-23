@@ -7,94 +7,51 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #0f172a;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
-
 .app {
     background: #1e293b;
-    padding: 30px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    text-align: center;
+    padding: 25px;
+    border-radius: 15px;
+    width: 95%;
+    max-width: 750px;
 }
-
-h1 {
-    margin-bottom: 10px;
-}
-
 .progress {
     height: 8px;
     background: #334155;
     border-radius: 10px;
-    overflow: hidden;
     margin-bottom: 20px;
 }
-
-.progress-bar {
+.bar {
     height: 100%;
     background: #22c55e;
     width: 0%;
-    transition: width 0.3s;
 }
-
-.question {
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-
 .option {
-    display: block;
     background: #334155;
-    padding: 12px;
-    border-radius: 10px;
     margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: 0.2s;
 }
-
-.option:hover {
-    background: #475569;
-}
-
-.selected {
-    background: #3b82f6;
-}
-
-.correct {
-    background: #22c55e !important;
-}
-
-.incorrect {
-    background: #ef4444 !important;
-}
+.option:hover { background:#475569; }
+.selected { background:#3b82f6; }
+.correct { background:#22c55e !important; }
+.incorrect { background:#ef4444 !important; }
 
 button {
-    margin-top: 20px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
+    margin-top: 15px;
+    padding: 10px;
     background: #3b82f6;
+    border: none;
+    border-radius: 8px;
     color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #2563eb;
-}
-
-.result {
-    font-size: 22px;
-    margin-top: 20px;
 }
 </style>
 
@@ -103,106 +60,176 @@ button:hover {
 <body>
 
 <div class="app">
-<h1>🧠 Test</h1>
+<h2>🧠 Test Completo</h2>
 
-<div class="progress">
-<div class="progress-bar" id="barra"></div>
-</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
 
-<div id="pregunta" class="question"></div>
-<div id="respuestas"></div>
+<div id="q"></div>
+<div id="opts"></div>
 
-<button onclick="siguiente()">Siguiente</button>
+<button onclick="next()">Siguiente</button>
 
-<div id="resultado" class="result"></div>
+<div id="res"></div>
 </div>
 
 <script>
+
 const preguntas = [
-{q:"Las URL/URIs proporcionan:",a:["Acceso","Ubicación","Concurrencia","Ninguna"],c:1},
-{q:"Transparencia de acceso oculta:",a:["Representación datos","Fallos","Localización","Concurrencia"],c:0},
-{q:"Google AppEngine es:",a:["PPV","IaaS","SaaS","PaaS"],c:3},
-{q:"Topología más escalable:",a:["Bus","Árbol","Hipercubo","Crossbar"],c:2},
-{q:"Diámetro toroide:",a:["N/2","N","2(√N-1)","log2(N)"],c:2},
-{q:"SIMD:",a:["Nvidia Tesla","Cray Y-MP","MMX","Todos"],c:3},
-{q:"Eficiencia:",a:["0.5 → doble tiempo","No >1","Más procesadores mejor","Todas"],c:1},
-{q:"Gustafson:",a:["9.17","20.5","90.1","100"],c:2},
-{q:"Menos comunicación:",a:["Filas","Columnas","Bloques","Cíclica"],c:2},
-{q:"Master/Worker pool:",a:["Menos congestión","Mejor balanceo","Mejor sync","Menos comunicaciones"],c:1},
 
-{q:"Árbol ancho bisección:",a:["1","√N","N/2","log2N"],c:0},
-{q:"Topología indirecta:",a:["Hipercubo","Omega","Crossbar","Toroide"],c:1},
-{q:"Transparencia ubicación:",a:["Localización","Concurrencia","Datos","Fallos"],c:0},
-{q:"No interesa ocultar:",a:["Redes","Replicación","Ubicación usuarios","Ninguna"],c:1},
-{q:"Mirrors:",a:["Replicación","Ubicación","Acceso","Ninguna"],c:0},
-{q:"No repudio:",a:["HTTPS","Antivirus","Firma digital","Certificados"],c:2},
-{q:"No ejecución remota:",a:["RPC","Objetos","Mensajes","a y b"],c:3},
-{q:"Cloud carga variable:",a:["Elasticidad","Pago","Confiabilidad","Escalabilidad"],c:0},
-{q:"Chord/Pastry:",a:["Binaria","Quicksort","Hash","a y c"],c:2},
+{q:"¿Las URL/URIs que tipo de transparencia proporcionan?",
+a:["a) Transparencia de acceso.","b) Transparencia de ubicación.","c) Transparencia de concurrencia.","d) Ninguna de las anteriores."],c:1},
 
-{q:"Heterogeneidad:",a:["Hardware","SO","Lenguaje","Todas"],c:3},
-{q:"RMI:",a:["Solo cliente","rmic obligatorio","No objetos","Ninguna"],c:3},
-{q:"Sistema abierto:",a:["Código","Siempre accesible","Interoperable","Seguro"],c:2},
-{q:"Migración vs recolocación:",a:["Replicación","Tipo recursos","Volumen","Uso de recursos"],c:3},
-{q:"Escalabilidad geográfica:",a:["CDN","Servidor horizontal","Más ancho banda","RAID"],c:0},
-{q:"Cloud Office365:",a:["IaaS","SaaS","PaaS","Ninguna"],c:1}
+{q:"La transparencia de acceso debe ocultar:",
+a:["a) La representación a bajo nivel de los datos.","b) Los fallos producidos en el sistema distribuido.","c) La localización de los recursos.","d) El acceso concurrente a los recursos."],c:0},
+
+{q:"El modelo de Cloud utilizado por Google AppEngine es:",
+a:["a) PPV","b) IaaS","c) SaaS","d) PaaS"],c:3},
+
+{q:"¿Cuál de las siguientes topologías proporciona una mejor escalabilidad?",
+a:["a) Bus","b) Árbol","c) Hipercubo","d) Crossbar"],c:2},
+
+{q:"¿Cuál es el diámetro de un toroide?",
+a:["a) N/2","b) N","c) 2(√N-1)","d) log2(N)"],c:2},
+
+{q:"SIMD:",
+a:["a) Nvidia Tesla","b) Cray Y-MP","c) MMX","d) Todos"],c:3},
+
+{q:"Eficiencia:",
+a:["a) 0.5 doble tiempo","b) No >1","c) Más procesadores mejor","d) Todas"],c:1},
+
+{q:"Ley de Gustafson:",
+a:["a) 9.17","b) 20.5","c) 90.1","d) 100"],c:2},
+
+{q:"Menor comunicación:",
+a:["a) Filas","b) Columnas","c) Bloques","d) Cíclica"],c:2},
+
+{q:"Master/Worker:",
+a:["a) Menos congestión","b) Mejor balanceo","c) Sync","d) Menos comunicaciones"],c:1},
+
+{q:"Árbol bisección:",
+a:["a) 1","b) √N","c) N/2","d) log2"],c:0},
+
+{q:"Topología indirecta:",
+a:["a) Hipercubo","b) Omega","c) Crossbar","d) Toroide"],c:1},
+
+{q:"Transparencia ubicación:",
+a:["a) Localización","b) Concurrencia","c) Datos","d) Fallos"],c:0},
+
+{q:"No ocultar:",
+a:["a) Redes","b) Replicación","c) Usuarios","d) Ninguna"],c:1},
+
+{q:"Mirrors:",
+a:["a) Replicación","b) Ubicación","c) Acceso","d) Ninguna"],c:0},
+
+{q:"No repudio:",
+a:["a) HTTPS","b) Antivirus","c) Firma digital","d) Certificados"],c:2},
+
+{q:"No ejecución remota:",
+a:["a) RPC","b) Objetos","c) Mensajes","d) a y b"],c:3},
+
+{q:"Cloud variable:",
+a:["a) Elasticidad","b) Pago","c) Confiabilidad","d) Escalabilidad"],c:0},
+
+{q:"Chord:",
+a:["a) Binaria","b) Quicksort","c) Hash","d) a y c"],c:2},
+
+{q:"No ventaja SD:",
+a:["a) Abierto","b) Seguro","c) Escalable","d) Coste"],c:1},
+
+{q:"Sistema abierto:",
+a:["a) Portabilidad","b) Interfaces","c) Independencia","d) Todas"],c:3},
+
+{q:"No middleware:",
+a:["a) CORBA","b) TCP/IP","c) RMI","d) SOAP"],c:1},
+
+{q:"Acceso oculta:",
+a:["a) Localización","b) Concurrencia","c) Datos","d) Fallos"],c:2},
+
+{q:"Navegadores:",
+a:["a) Recuperación","b) Enmascaramiento","c) Tolerancia","d) Redundancia"],c:1},
+
+{q:"Confidencialidad:",
+a:["a) HTTPS","b) Certificados","c) Antivirus","d) Firma"],c:0},
+
+{q:"Grid:",
+a:["a) Desconocimiento","b) Sin confianza","c) Pago","d) a y b"],c:3},
+
+{q:"Amazon EC2:",
+a:["a) IaaS","b) PaaS","c) SaaS","d) PPV"],c:0},
+
+{q:"Heterogeneidad:",
+a:["a) Hardware","b) SO","c) Lenguaje","d) Todas"],c:3},
+
+{q:"RMI:",
+a:["a) Solo cliente","b) rmic obligatorio","c) No objetos","d) Ninguna"],c:3},
+
+{q:"Sistema abierto:",
+a:["a) Código","b) Siempre accesible","c) Interoperable","d) Seguro"],c:2},
+
+{q:"Migración vs recolocación:",
+a:["a) Replicación","b) Tipo","c) Volumen","d) Uso"],c:3},
+
+{q:"Escalabilidad geográfica:",
+a:["a) CDN","b) Horizontal","c) Ancho banda","d) RAID"],c:0},
+
+{q:"Office365:",
+a:["a) IaaS","b) SaaS","c) PaaS","d) Ninguna"],c:1},
+
+{q:"MOM:",
+a:["a) Directa","b) E/S","c) Multicast","d) RPC"],c:1},
+
+{q:"P2P no estructurado:",
+a:["a) DHT","b) No determinista","c) Anillo","d) A y C"],c:1},
+
+{q:"MIMD:",
+a:["a) IBM Blue Gene","b) Tesla","c) Earth Simulator","d) MMX"],c:0},
+
+{q:"NUMA vs UMA:",
+a:["a) Coherencia","b) Memoria local","c) Distancia","d) Sin espacio global"],c:2}
+
 ];
 
-let actual = 0;
-let aciertos = 0;
-let seleccion = null;
+let i=0,score=0,sel=null;
 
-function cargarPregunta() {
-    const p = preguntas[actual];
-    document.getElementById("pregunta").innerText = (actual+1)+". "+p.q;
-
-    let html = "";
-    p.a.forEach((op, i) => {
-        html += `<div class="option" onclick="seleccionar(this, ${i})">${op}</div>`;
-    });
-
-    document.getElementById("respuestas").innerHTML = html;
-    seleccion = null;
-
-    document.getElementById("barra").style.width =
-        ((actual)/preguntas.length)*100 + "%";
+function load(){
+let p=preguntas[i];
+q.innerText=(i+1)+". "+p.q;
+opts.innerHTML="";
+p.a.forEach((o,idx)=>{
+opts.innerHTML+=`<div class="option" onclick="pick(this,${idx})">${o}</div>`;
+});
+bar.style.width=(i/preguntas.length*100)+"%";
+sel=null;
 }
 
-function seleccionar(el, i) {
-    document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
-    el.classList.add("selected");
-    seleccion = i;
+function pick(el,idx){
+document.querySelectorAll(".option").forEach(o=>o.classList.remove("selected"));
+el.classList.add("selected");
+sel=idx;
 }
 
-function siguiente() {
-    if (seleccion === null) {
-        alert("Selecciona una respuesta");
-        return;
-    }
+function next(){
+if(sel==null)return alert("Selecciona una respuesta");
 
-    const opciones = document.querySelectorAll(".option");
+let ops=document.querySelectorAll(".option");
 
-    if (seleccion === preguntas[actual].c) {
-        aciertos++;
-        opciones[seleccion].classList.add("correct");
-    } else {
-        opciones[seleccion].classList.add("incorrect");
-        opciones[preguntas[actual].c].classList.add("correct");
-    }
-
-    setTimeout(() => {
-        actual++;
-        if (actual < preguntas.length) {
-            cargarPregunta();
-        } else {
-            document.querySelector(".app").innerHTML =
-                `<h1>Resultado</h1>
-                 <p class="result">${aciertos} / ${preguntas.length}</p>`;
-        }
-    }, 800);
+if(sel===preguntas[i].c){
+score++;
+ops[sel].classList.add("correct");
+}else{
+ops[sel].classList.add("incorrect");
+ops[preguntas[i].c].classList.add("correct");
 }
 
-cargarPregunta();
+setTimeout(()=>{
+i++;
+if(i<preguntas.length) load();
+else app.innerHTML=`<h2>Resultado</h2><h1>${score}/${preguntas.length}</h1>`;
+},800);
+}
+
+load();
+
 </script>
 
 </body>
