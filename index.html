@@ -8,18 +8,18 @@
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Fraunces:opsz,wght@9..144,300;9..144,700&display=swap');
 
   :root {
-    --bg: #f8f9fc;
-    --surface: #ffffff;
-    --surface2: #f0f2f7;
-    --border: #d1d9e6;
-    --accent-t: #0284c7;
-    --accent-f: #7c3aed;
-    --accent-c: #059669;
-    --accent-tc: #d97706;
-    --text: #1e293b;
-    --text-dim: #64748b;
-    --green: #059669;
-    --red: #dc2626;
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --accent-t: #64d0ff;
+    --accent-f: #a78bfa;
+    --accent-c: #34d399;
+    --accent-tc: #fbbf24;
+    --text: #e2e8f0;
+    --text-dim: #8892a4;
+    --green: #34d399;
+    --red: #f87171;
     --radius: 12px;
   }
 
@@ -35,7 +35,7 @@
 
   /* ── Header ── */
   header {
-    background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #0f1117 0%, #181c27 100%);
     border-bottom: 1px solid var(--border);
     padding: 28px 32px;
     display: flex;
@@ -296,7 +296,7 @@
     padding: 14px 18px;
     overflow-x: auto;
     line-height: 1.6;
-    color: #0f4c8a;
+    color: #a5d6ff;
     margin: 10px 0;
     display: block;
     white-space: pre-wrap;
@@ -355,7 +355,7 @@
     padding: 14px 18px;
     overflow-x: auto;
     line-height: 1.6;
-    color: #0f4c8a;
+    color: #a5d6ff;
     margin: 10px 0;
     display: block;
     white-space: pre-wrap;
@@ -367,7 +367,7 @@
     margin: 0;
     border-radius: 4px;
     background: var(--surface2);
-    color: #065f46;
+    color: #86efac;
     font-size: 0.83em;
   }
 
@@ -565,7 +565,7 @@
     <h3>Tipo de Pregunta</h3>
 
     <button class="type-btn active" data-type="home">
-      <span class="dot" style="background:#94a3b8"></span>
+      <span class="dot" style="background:#64748b"></span>
       Inicio
     </button>
 
@@ -700,10 +700,10 @@ let progress = JSON.parse(localStorage.getItem('mdw_progress') || '{}');
 
 // Maps
 const TYPE_META = {
-  teoria:        { label: 'Teoría',           badge: 'type-badge-t',  title: 'Preguntas de Teoría',      desc: 'Responde sin ver la solución', accent: '#0284c7' },
-  fill_in_blanks:{ label: 'Fill in Blanks',   badge: 'type-badge-f',  title: 'Completa el Código',       desc: 'Completa los espacios en blanco', accent: '#7c3aed' },
-  hacer_codigo:  { label: 'Hacer Código',     badge: 'type-badge-c',  title: 'Escribe el Código',        desc: 'Implementa la solución completa', accent: '#059669' },
-  teoria_codigo: { label: 'Teoría de Código', badge: 'type-badge-tc', title: 'Analiza el Código',        desc: 'Interpreta y explica el código dado', accent: '#d97706' }
+  teoria:        { label: 'Teoría',           badge: 'type-badge-t',  title: 'Preguntas de Teoría',      desc: 'Responde sin ver la solución', accent: '#64d0ff' },
+  fill_in_blanks:{ label: 'Fill in Blanks',   badge: 'type-badge-f',  title: 'Completa el Código',       desc: 'Completa los espacios en blanco', accent: '#a78bfa' },
+  hacer_codigo:  { label: 'Hacer Código',     badge: 'type-badge-c',  title: 'Escribe el Código',        desc: 'Implementa la solución completa', accent: '#34d399' },
+  teoria_codigo: { label: 'Teoría de Código', badge: 'type-badge-tc', title: 'Analiza el Código',        desc: 'Interpreta y explica el código dado', accent: '#fbbf24' }
 };
 
 // ─── Init ───
