@@ -429,8 +429,6 @@ public void onClick(View v) {
     }
 }
 </pre>`
-    }
-]
     },
     {
       id: "F02",
