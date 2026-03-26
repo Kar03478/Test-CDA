@@ -353,77 +353,84 @@ Datos transitorios de la UI: texto introducido en campos de texto, posición de 
     }
   ],
 
-  fill_in_blanks: [
+ fill_in_blanks: [
     {
-      id: "F01",
-      exam: "REC 1r Parcial – Curso 20/21 & 21/22 – Pregunta 2 (MiniActiv-3)",
-      pregunta: `<strong>Intents implícitos – Completa las líneas de código incompletas:</strong><br><br>
-El siguiente código gestiona clics de botones para lanzar intents implícitos y recoger resultados.<br>
+      id: "F02",
+      exam: "REC 1r Parcial – API moderna (Activity Result) – Pregunta Intents",
+      pregunta: `<strong>Intents implícitos (API moderna) – Completa las líneas de código incompletas:</strong><br><br>
+El siguiente código utiliza la nueva Activity Result API para lanzar un intent implícito y gestionar el resultado.<br>
 Completa TODOS los espacios en blanco:<br><br>
 <pre>
-@Override
-public void onClick(View v) {
-    switch (v.getId()) {
-        case R.id.button1:
-            in = new Intent(Intent.___[1]___,
-                    android.provider.MediaStore.Images___[2]___.EXTERNAL_CONTENT_URI);
-            ___[3]___(in, 2);
-            break;
-        case R.id.button2:
-            in = new Intent(Intent.___[1]___,
-                    ContactsContract.Contacts.CONTENT_URI);
-            ___[3]___(in, 1);
-            break;
-    }
-}
+ActivityResultLauncher<Intent> ___[1]___ = registerForActivityResult(
+        new ___[2]___(),
+        result -> {
+            if (result.___[3]___() == RESULT_OK) {
+                Intent data = result.___[4]___();
+                if (data != null) {
+                    Uri uImage = data.___[5]___();
+                    if (uImage != null) {
+                        selectedImage.___[6]___(uImage);
+                    }
+                }
+            }
+        }
+);
 
 @Override
-public void ___[4]___ (int requestCode, int ___[5]___, Intent data) {
-    super.___[4]___(requestCode, ___[5]___, data);
-    if (data != null && ___[5]___==RESULT_OK) {
-        switch(requestCode) {
-            case 1:
-                Uri uContact = data.___[6]___();
-                if (uContact!= null) {
-                    ed.setText(retrieveContactName(uContact));
-                break;
-            case 2:
-                Uri uImage = data.___[6]___();
-                if (uImage != null) {
-                    selectedImage.___[7]___(uImage);
-                    break;
-                }
-        }
+public void onClick(View v) {
+    Intent in;
+
+    switch (v.getId()) {
+        case R.id.button1:
+            in = new Intent(Intent.___[7]___,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            ___[1]___.___[8]___(in);
+            break;
     }
 }
 </pre>`,
       respuesta: `<strong>Solución:</strong><br>
-<strong>[1]</strong> <code>ACTION_PICK</code><br>
-<strong>[2]</strong> <code>.Media</code> → completando: <code>android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI</code><br>
-<strong>[3]</strong> <code>startActivityForResult</code><br>
-<strong>[4]</strong> <code>onActivityResult</code><br>
-<strong>[5]</strong> <code>resultCode</code><br>
-<strong>[6]</strong> <code>getData</code><br>
-<strong>[7]</strong> <code>setImageURI</code><br><br>
+<strong>[1]</strong> <code>imageLauncher</code><br>
+<strong>[2]</strong> <code>ActivityResultContracts.StartActivityForResult</code><br>
+<strong>[3]</strong> <code>getResultCode</code><br>
+<strong>[4]</strong> <code>getData</code><br>
+<strong>[5]</strong> <code>getData</code><br>
+<strong>[6]</strong> <code>setImageURI</code><br>
+<strong>[7]</strong> <code>ACTION_PICK</code><br>
+<strong>[8]</strong> <code>launch</code><br><br>
+
 <strong>Código completo:</strong><br>
 <pre>
-// [1] ACTION_PICK
-in = new Intent(Intent.ACTION_PICK,
-    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-// [3] startActivityForResult
-startActivityForResult(in, 2);
+ActivityResultLauncher<Intent> imageLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null) {
+                    Uri uImage = data.getData();
+                    if (uImage != null) {
+                        selectedImage.setImageURI(uImage);
+                    }
+                }
+            }
+        }
+);
 
-// [4] onActivityResult, [5] resultCode
-public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (data != null && resultCode == RESULT_OK) {
-        // [6] getData()
-        Uri uContact = data.getData();
-        // [7] setImageURI
-        selectedImage.setImageURI(uImage);
+@Override
+public void onClick(View v) {
+    Intent in;
+
+    switch (v.getId()) {
+        case R.id.button1:
+            in = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            imageLauncher.launch(in);
+            break;
     }
 }
 </pre>`
+    }
+]
     },
     {
       id: "F02",
